@@ -1,0 +1,49 @@
+{
+  "name": "node-gdrive",
+  "description": "Google driver for node",
+  "homepage": "https://github.com/khoazero123/node-gdrive",
+  "version": "0.0.1",
+  "main": "./lib/index.js",
+  "author": {
+    "name": "KhoaZero123",
+    "url": "https://github.com/khoazero123"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/khoazero123/node-gdrive.git"
+  },
+  "bugs": {
+    "url": "https://github.com/khoazero123/node-gdrive/issues"
+  },
+  "keywords": [
+    "upload",
+    "google drive",
+    "cloud"
+  ],
+  "dependencies": {
+    "request": "~2.88.0",
+    "streamify": "~0.2.9",
+    "axios": "^0.18.0",
+    "express": "^4.16.3",
+    "googleapis": "^38.0.0",
+    "md5": "^2.2.1",
+    "nconf": "^0.10.0",
+    "opn": "^5.3.0",
+    "server-destroy": "^1.0.1"
+  },
+  "devDependencies": {
+    "vows": "latest",
+    "mocha": "^6.0.0"
+  },
+  "files": [
+    "lib",
+    "scripts"
+  ],
+  "scripts": {
+    "test": "vows ./test/*.js --spec"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "license": "MIT"
+}
