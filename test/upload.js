@@ -9,9 +9,10 @@ upload.on('*', (event, data) => {
   console.log(event, data);
 });
 
-/* var upload = new Upload();
+/* var upload = new Upload(null, { cli: true, stdout: true });
 upload.upload(filePath).then((file) => {
   console.log('file', file);
 }).catch((err) => {
   console.error('err', err);}
-); */
+);
+ */
