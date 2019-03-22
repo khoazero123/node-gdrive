@@ -2,7 +2,7 @@
   "name": "node-gdrive",
   "description": "Google driver for node",
   "homepage": "https://github.com/khoazero123/node-gdrive",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./lib/index.js",
   "author": {
     "name": "KhoaZero123",
@@ -31,16 +31,11 @@
     "opn": "^5.3.0",
     "server-destroy": "^1.0.1"
   },
-  "devDependencies": {
-    "vows": "latest",
-    "mocha": "^6.0.0"
-  },
   "files": [
-    "lib",
-    "scripts"
+    "lib"
   ],
   "scripts": {
-    "test": "vows ./test/*.js --spec"
+    "test": "npm -v"
   },
   "engines": {
     "node": ">=8"
