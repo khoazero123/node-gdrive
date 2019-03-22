@@ -4,7 +4,7 @@ const { Upload} = require("../");
 
 const filePath = process.argv[2] || 'README.md';
 
-var upload = new Upload(filePath);
+var upload = new Upload(filePath, {share: true});
 upload.on('*', (event, data) => {
   console.log(event, data);
 });
