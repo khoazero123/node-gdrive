@@ -1,46 +1,65 @@
 #!/usr/bin/env node
 
+const yargs = require("yargs");
 const chalk = require("chalk");
 const error = chalk.bold.red;
 const warning = chalk.keyword("orange");
 const info = chalk.keyword("gray");
-const { Client, Upload, Download } = require("../");
+const { Client, Upload, Download, Share } = require("../");
 
-var argv = require("yargs")
-  .scriptName("gdrive")
+var argv = yargs
+  .scriptName(process.argv[1])
   .usage("$0 <cmd> [args]")
+  .demandCommand(2)
   .command(
-    "upload",
+    "upload <file> [options]",
     chalk.blue("Upload file"),
     yargs => {
       yargs
-        .positional("f", {
-          alias: "file",
+        .usage("usage: $0 upload <file> [options]")
+        .option("p <parent>", {
+          alias: "parent",
           type: "string",
-          describe: chalk.gray("File path to upload")
+          describe: chalk.gray(
+            "Parent id, used to upload file to a specific directory, can be specified multiple times to give many parents"
+          )
         })
-        /* .demandOption(
-          "file",
-          chalk.red("!") + warning("Please provide filepath")
-        ) */
-        .check(function(argv) {
-          var filePath = argv.file || argv._[1];
-          if (!filePath) {
-            throw new Error(error("Please provide filepath!"));
-          }
-          return true;
-        })
-        .positional("share", {
-          alias: "share",
-          describe: chalk.gray("Share to 'everyone' or an email address"),
+        .option("chunksize <chunksize>", {
+          describe: chalk.gray(
+            "Set chunk size in bytes, default: 8388608"
+          ),
           type: "string"
         })
-        .positional("del", {
+        .option("description <description>", {
+          describe: chalk.gray("File description"),
+          type: "string"
+        })
+        .option("mime <mime>", {
+          describe: chalk.gray("Force mime type"),
+          type: "string"
+        })
+        .option("share", {
+          describe: chalk.gray("Share file"),
+          type: "string"
+        })
+        .option("no-progress", {
+          describe: chalk.gray("Hide progress"),
+          type: "boolean"
+        })
+        .option("timeout <timeout>", {
+          describe: chalk.gray(
+            "Set timeout in seconds, use 0 for no timeout. Timeout is reached when no data is transferred in set amount of seconds, default: 300"
+          ),
+          type: "string"
+        })
+        .option("d", {
           alias: "delete",
           describe: chalk.gray("Delete file after upload"),
           type: "boolean",
           default: false
-        });
+        })
+        .help("help")
+        .version(false);
       yargs.example(
         "$0 upload -f foo.js --share khoazero123@gmail.com --delele",
         chalk.gray(
@@ -51,51 +70,56 @@ var argv = require("yargs")
     function(argv) {
       // console.log(filePath);process.exit(1);
       var filePath = argv.file || argv._[1];
+      if (!filePath) {
+        yargs.showHelp();
+      }
       new Upload(filePath, {
         cli: true,
         stdout: true,
-        share: argv.hasOwnProperty("share") ? (argv.share ? argv.share : true) : false,
-        delete: argv.hasOwnProperty("delete") ? (argv.delete ? true : false) : false
+        share: argv.hasOwnProperty("share")
+          ? argv.share
+            ? argv.share
+            : true
+          : false,
+        delete: argv.hasOwnProperty("delete")
+          ? argv.delete
+            ? true
+            : false
+          : false
       });
     }
   )
   .command(
-    "download",
+    "download <fileId> [options]",
     chalk.blue("Download file"),
     yargs => {
       yargs
-        .positional("id", {
+        /* .option("id", {
           alias: "fileId",
           type: "string",
           describe: info("FileId to download")
-        })
-        .positional("r", {
+        }) */
+        .option("r", {
           alias: "resumable",
           type: "boolean",
           describe: info("Resume download"),
           default: true
         })
-        .positional("f", {
+        .option("f", {
           alias: "force",
           type: "boolean",
           describe: info("Override file if exists")
         })
-        .positional("o", {
+        .option("o", {
           alias: "output",
           type: "string",
           describe: info("Path to save file")
         })
-        // .demandOption("id", chalk.red("!") + warning("Please provide fileId"));
-        .check(function(argv) {
-          var fileId = argv.id || argv._[1];
-          if (!fileId) {
-            throw new Error(error("Please provide fileId!"));
-          }
-          return true;
-        });
+        .help("help")
+        .version(false);
     },
     function(argv) {
-      var fileId = argv.id || argv._[1];
+      var fileId = argv.fileId;
       // console.log(argv);process.exit(1);
       var download = new Download();
       download
@@ -113,42 +137,107 @@ var argv = require("yargs")
     }
   )
   .command(
+    "share <fileId>",
+    chalk.blue("Share file"),
+    yargs => {
+      yargs
+        .usage("usage: $0 share <fileId> [options]")
+        /* .option("id", {
+          type: "string",
+          describe: info("FileId to share")
+        }) */
+        .option("role", {
+          type: "string",
+          describe: info(
+            "Share role: owner/writer/commenter/reader, default: reader"
+          )
+        })
+        .option("type", {
+          type: "string",
+          describe: info(
+            "Share type: user/group/domain/anyone, default: anyone"
+          )
+        })
+        .option("email", {
+          type: "string",
+          describe: info(
+            "The email address of the user or group to share the file with. Requires 'user' or 'group' as type"
+          )
+        })
+        .option("discoverable", {
+          type: "boolean",
+          describe: info("Make file discoverable by search engines")
+        })
+        .option("revoke", {
+          type: "boolean",
+          describe: info(
+            "Delete all sharing permissions (owner roles will be skipped)"
+          )
+        })
+        .help("help")
+        .version(false)
+        .updateStrings({
+          "Commands:": "item:"
+        });
+      //.demandOption(['run', 'path'], 'Please provide both run and path arguments to work with this tool');
+    },
+    function(argv) {
+      // console.log(argv);process.exit(1);
+      var fileId = argv.fileId;
+      try {
+        var share = new Share();
+        share
+          .share(fileId, argv.email)
+          .then(result => {
+            console.log(result);
+          })
+          .catch(err => {
+            console.error(err.message);
+          });
+      } catch (err) {
+        console.error(err.message);
+      }
+    }
+  )
+  .command(
     "token:get",
     chalk.blue("Get token"),
     yargs => {
-      yargs.positional("t", {
-        alias: "type",
-        type: "string",
-        describe: info("Type auth"),
-        choices: ["cli", "web"],
-        default: 'cli'
-      });
+      yargs
+        .positional("t", {
+          alias: "type",
+          type: "string",
+          describe: info("Type auth"),
+          choices: ["cli", "web"],
+          default: "cli"
+        })
+        .positional("f", {
+          alias: "force",
+          type: "boolean",
+          describe: info("Override old token"),
+          default: true
+        });
     },
     function(argv) {
       let auth_type = argv._[1] || argv.type;
       try {
-        var client = new Client({auth_type: auth_type });
-        const scopes = [
-          "https://www.googleapis.com/auth/drive",
-          "https://www.googleapis.com/auth/drive.appdata",
-          "https://www.googleapis.com/auth/drive.file",
-          "https://www.googleapis.com/auth/drive.metadata",
-          "https://www.googleapis.com/auth/drive.metadata.readonly",
-          "https://www.googleapis.com/auth/drive.photos.readonly",
-          "https://www.googleapis.com/auth/drive.readonly"
-        ];
-        client.authenticate(scopes, { force: true });
-      } catch(err) {
-        process.stdout.write(err.message+"\n");
+        var client = new Client({ auth_type: auth_type });
+        client.authenticate({ force: true });
+      } catch (err) {
+        process.stdout.write(err.message + "\n");
       }
     }
   )
+  .command("token:revoke", chalk.red("Revoke token"), function(yargs) {
+    console.log(chalk.red("!") + "Revoke token not yet handled");
+  })
   .demandCommand(
     1,
     chalk.red("!") + warning("You need at least one command before moving on")
   )
   .help("h")
   .alias("h", "help")
+  .version(true)
   .epilog(chalk.blue("Copyright 2019 - khoazero123")).argv;
 
 function main() {
