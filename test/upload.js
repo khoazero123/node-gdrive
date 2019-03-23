@@ -1,5 +1,5 @@
 
-const { Upload} = require("../");
+const { Upload } = require("../");
 
 
 const filePath = process.argv[2] || 'README.md';

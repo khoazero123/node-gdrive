@@ -10,13 +10,63 @@ With [npm](https://www.npmjs.com/) do:
 npm install node-gdrive
 ```
 
+Use command line global:
+
+``` sh
+npm install node-gdrive -g
+```
+
+## Config
+
+``` sh
+gdrive token:get # generator new token
+```
+
 ## Usage
 
-### Downloading videos
+### Node project
+
+``` js
+// upload file
+
+const { Upload, Download } = require("node-gdrive");
+
+let filePath = 'foo.txt';
+
+var upload = new Upload(filePath, {share: true});
+upload.on('*', (event, data) => {
+  console.log(event, data);
+});
+
+// Download file
+let fileId = "1eoAgH8xgBkkUDXkTdyPSHSbaJViv33oX";
+
+var download = new Download();
+download
+  .download(fileId, {
+    resumable: true, // Resume download session
+    force: false, // Override file if exists
+    output: './tmp/', // Dir or filepath to save file
+  })
+  .then(file => {
+    console.log("file", file);
+  })
+  .catch(err => {
+    console.error("err", err);
+  });
+
+```
+
+#### Commands line
+
+``` sh
+gdrive upload file.txt --share user@gmail.com # upload and share file
+
+gdrive donwload 1eoAgH8xgBkkUDXkTdyPSHSbaJViv33oX # download file
+
+gdrive --help
+```
 
 ## License
 
 MIT
-
-[youtube-dl]: http://rg3.github.com/youtube-dl/
-[youtube-dl documentation]: http://rg3.github.com/youtube-dl/documentation.html

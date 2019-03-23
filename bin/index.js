@@ -19,14 +19,21 @@ var argv = require("yargs")
           type: "string",
           describe: chalk.gray("File path to upload")
         })
-        .demandOption(
+        /* .demandOption(
           "file",
           chalk.red("!") + warning("Please provide filepath")
-        )
+        ) */
+        .check(function(argv) {
+          var filePath = argv.file || argv._[1];
+          if (!filePath) {
+            throw new Error(error("Please provide filepath!"));
+          }
+          return true;
+        })
         .positional("share", {
           alias: "share",
           describe: chalk.gray("Share to 'everyone' or an email address"),
-          type: "string",
+          type: "string"
         })
         .positional("del", {
           alias: "delete",
@@ -42,7 +49,9 @@ var argv = require("yargs")
       );
     },
     function(argv) {
-      new Upload(argv.file, {
+      // console.log(filePath);process.exit(1);
+      var filePath = argv.file || argv._[1];
+      new Upload(filePath, {
         cli: true,
         stdout: true,
         share: argv.hasOwnProperty("share") ? (argv.share ? argv.share : true) : false,
@@ -50,7 +59,6 @@ var argv = require("yargs")
       });
     }
   )
-  // .example("$0 upload -f foo.js", "upload file foo.js")
   .command(
     "download",
     chalk.blue("Download file"),
@@ -61,17 +69,47 @@ var argv = require("yargs")
           type: "string",
           describe: info("FileId to download")
         })
-        .demandOption("id", chalk.red("!") + warning("Please provide fileId"));
+        .positional("r", {
+          alias: "resumable",
+          type: "boolean",
+          describe: info("Resume download"),
+          default: true
+        })
+        .positional("f", {
+          alias: "force",
+          type: "boolean",
+          describe: info("Override file if exists")
+        })
+        .positional("o", {
+          alias: "output",
+          type: "string",
+          describe: info("Path to save file")
+        })
+        // .demandOption("id", chalk.red("!") + warning("Please provide fileId"));
+        .check(function(argv) {
+          var fileId = argv.id || argv._[1];
+          if (!fileId) {
+            throw new Error(error("Please provide fileId!"));
+          }
+          return true;
+        });
     },
     function(argv) {
-      // console.log(argv);
-      var fileId = argv.id;
+      var fileId = argv.id || argv._[1];
+      // console.log(argv);process.exit(1);
       var download = new Download();
-      download.download(fileId).then(data => {
-        // console.log(data);
-      }).catch(err => {
-        // console.error(err);
-      });
+      download
+        .download(fileId, {
+          resumable: argv.resumable,
+          force: argv.force,
+          output: argv.output
+        })
+        .then(data => {
+          // console.log(data);
+        })
+        .catch(err => {
+          console.error(err.message);
+        });
     }
   )
   .command(

@@ -2,10 +2,10 @@
   "name": "node-gdrive",
   "description": "Google driver for node",
   "homepage": "https://github.com/khoazero123/node-gdrive",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "./lib/index.js",
   "bin": {
-    "gdrive": "./bin/gdrive.js"
+    "gdrive": "./bin/index.js"
   },
   "author": {
     "name": "KhoaZero123",
