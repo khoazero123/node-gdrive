@@ -17,19 +17,19 @@ var argv = yargs
     yargs => {
       yargs
         .usage("usage: $0 upload <file> [options]")
-        .option("p <parent>", {
+        .option("p", {
           alias: "parent",
           type: "string",
           describe: chalk.gray(
             "Parent id, used to upload file to a specific directory, can be specified multiple times to give many parents"
           )
         })
-        .option("chunksize <chunksize>", {
+        /* .option("chunksize <chunksize>", {
           describe: chalk.gray(
             "Set chunk size in bytes, default: 8388608"
           ),
           type: "string"
-        })
+        }) */
         .option("description <description>", {
           describe: chalk.gray("File description"),
           type: "string"
@@ -46,12 +46,12 @@ var argv = yargs
           describe: chalk.gray("Hide progress"),
           type: "boolean"
         })
-        .option("timeout <timeout>", {
+        /* .option("timeout <timeout>", {
           describe: chalk.gray(
             "Set timeout in seconds, use 0 for no timeout. Timeout is reached when no data is transferred in set amount of seconds, default: 300"
           ),
           type: "string"
-        })
+        }) */
         .option("d", {
           alias: "delete",
           describe: chalk.gray("Delete file after upload"),
@@ -68,12 +68,7 @@ var argv = yargs
       );
     },
     function(argv) {
-      // console.log(filePath);process.exit(1);
-      var filePath = argv.file || argv._[1];
-      if (!filePath) {
-        yargs.showHelp();
-      }
-      new Upload(filePath, {
+      let options = Object.assign({}, argv, {
         cli: true,
         stdout: true,
         share: argv.hasOwnProperty("share")
@@ -87,6 +82,11 @@ var argv = yargs
             : false
           : false
       });
+      // console.log(options);process.exit(1);
+      if (!options.file) {
+        yargs.showHelp();
+      }
+      new Upload(options.file, options);
     }
   )
   .command(
