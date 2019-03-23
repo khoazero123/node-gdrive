@@ -115,18 +115,32 @@ var argv = require("yargs")
   .command(
     "token:get",
     chalk.blue("Get token"),
+    yargs => {
+      yargs.positional("t", {
+        alias: "type",
+        type: "string",
+        describe: info("Type auth"),
+        choices: ["cli", "web"],
+        default: 'cli'
+      });
+    },
     function(argv) {
-      var client = new Client({auth_type: 'cli'});
-      const scopes = [
-        "https://www.googleapis.com/auth/drive",
-        "https://www.googleapis.com/auth/drive.appdata",
-        "https://www.googleapis.com/auth/drive.file",
-        "https://www.googleapis.com/auth/drive.metadata",
-        "https://www.googleapis.com/auth/drive.metadata.readonly",
-        "https://www.googleapis.com/auth/drive.photos.readonly",
-        "https://www.googleapis.com/auth/drive.readonly"
-      ];
-      client.authenticate(scopes, { force: true });
+      let auth_type = argv._[1] || argv.type;
+      try {
+        var client = new Client({auth_type: auth_type });
+        const scopes = [
+          "https://www.googleapis.com/auth/drive",
+          "https://www.googleapis.com/auth/drive.appdata",
+          "https://www.googleapis.com/auth/drive.file",
+          "https://www.googleapis.com/auth/drive.metadata",
+          "https://www.googleapis.com/auth/drive.metadata.readonly",
+          "https://www.googleapis.com/auth/drive.photos.readonly",
+          "https://www.googleapis.com/auth/drive.readonly"
+        ];
+        client.authenticate(scopes, { force: true });
+      } catch(err) {
+        process.stdout.write(err.message+"\n");
+      }
     }
   )
   .demandCommand(
