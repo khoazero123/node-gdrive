@@ -71,6 +71,7 @@ var argv = yargs
       let options = Object.assign({}, argv, {
         cli: true,
         stdout: true,
+        progress: argv.hasOwnProperty("progress") ? false : true,
         share: argv.hasOwnProperty("share")
           ? argv.share
             ? argv.share
