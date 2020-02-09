@@ -209,7 +209,7 @@ var argv = yargs
           alias: "type",
           type: "string",
           describe: info("Type auth"),
-          choices: ["cli", "web"],
+          choices: ["cli", "browser"],
           default: "cli"
         })
         .positional("f", {
