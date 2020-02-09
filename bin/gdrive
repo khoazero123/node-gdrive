@@ -5,9 +5,9 @@ const chalk = require("chalk");
 const error = chalk.bold.red;
 const warning = chalk.keyword("orange");
 const info = chalk.keyword("gray");
-const { Client, Upload, Download, Share } = require("../");
+const { Client, Drive } = require("../src/lib");
 
-var argv = yargs
+const argv = yargs
   .scriptName(process.argv[1])
   .usage("$0 <cmd> [args]")
   .demandCommand(2)
@@ -40,7 +40,7 @@ var argv = yargs
         })
         .option("share", {
           describe: chalk.gray("Share file"),
-          type: "string"
+          type: "string",
         })
         .option("no-progress", {
           describe: chalk.gray("Hide progress"),
@@ -67,27 +67,19 @@ var argv = yargs
         )
       );
     },
-    function(argv) {
+    function (argv) {
       let options = Object.assign({}, argv, {
         cli: true,
         stdout: true,
-        progress: argv.hasOwnProperty("progress") ? false : true,
-        share: argv.hasOwnProperty("share")
-          ? argv.share
-            ? argv.share
-            : true
-          : false,
-        delete: argv.hasOwnProperty("delete")
-          ? argv.delete
-            ? true
-            : false
-          : false
+        progress: argv.progress === false ? false : true,
+        share: argv.share.length ? argv.share : argv.share===false ? false : true,
+        delete: argv.delete === true ? true : false
       });
-      // console.log(options);process.exit(1);
       if (!options.file) {
         yargs.showHelp();
       }
-      new Upload(options.file, options);
+
+      Drive.upload(options.file, options);
     }
   )
   .command(
@@ -95,11 +87,6 @@ var argv = yargs
     chalk.blue("Download file"),
     yargs => {
       yargs
-        /* .option("id", {
-          alias: "fileId",
-          type: "string",
-          describe: info("FileId to download")
-        }) */
         .option("r", {
           alias: "resumable",
           type: "boolean",
@@ -122,8 +109,7 @@ var argv = yargs
     function(argv) {
       var fileId = argv.fileId;
       // console.log(argv);process.exit(1);
-      var download = new Download();
-      download
+      Drive
         .download(fileId, {
           resumable: argv.resumable,
           force: argv.force,
@@ -143,11 +129,7 @@ var argv = yargs
     yargs => {
       yargs
         .usage("usage: $0 share <fileId> [options]")
-        /* .option("id", {
-          type: "string",
-          describe: info("FileId to share")
-        }) */
-        .option("role", {
+        /* .option("role", {
           type: "string",
           describe: info(
             "Share role: owner/writer/commenter/reader, default: reader"
@@ -158,14 +140,14 @@ var argv = yargs
           describe: info(
             "Share type: user/group/domain/anyone, default: anyone"
           )
-        })
+        }) */
         .option("email", {
           type: "string",
           describe: info(
             "The email address of the user or group to share the file with. Requires 'user' or 'group' as type"
           )
         })
-        .option("discoverable", {
+        /* .option("discoverable", {
           type: "boolean",
           describe: info("Make file discoverable by search engines")
         })
@@ -174,7 +156,7 @@ var argv = yargs
           describe: info(
             "Delete all sharing permissions (owner roles will be skipped)"
           )
-        })
+        }) */
         .help("help")
         .version(false)
         .updateStrings({
@@ -183,14 +165,12 @@ var argv = yargs
       //.demandOption(['run', 'path'], 'Please provide both run and path arguments to work with this tool');
     },
     function(argv) {
-      // console.log(argv);process.exit(1);
       var fileId = argv.fileId;
       try {
-        var share = new Share();
-        share
+        Drive
           .share(fileId, argv.email)
-          .then(result => {
-            console.log(result);
+          .then((result) => {
+            console.log('Share done');
           })
           .catch(err => {
             console.error(err.message);
@@ -228,7 +208,25 @@ var argv = yargs
         process.stdout.write(err.message + "\n");
       }
     }
-  )
+)
+.command(
+  "list [folderId]",
+  chalk.blue("Get list files"),
+  yargs => {
+    
+  },
+  function(argv) {
+    Drive.list(argv.folderId).then(files => {
+      console.log(files);
+    })
+    try {
+      // var client = new Client({ auth_type: auth_type });
+      // client.authenticate({ force: true });
+    } catch (err) {
+      process.stdout.write(err.message + "\n");
+    }
+  }
+)
   .command("token:revoke", chalk.red("Revoke token"), function(yargs) {
     console.log(chalk.red("!") + "Revoke token not yet handled");
   })

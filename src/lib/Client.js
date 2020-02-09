@@ -1,13 +1,13 @@
 const chalk = require("chalk");
 const { google } = require("googleapis");
 const readline = require("readline");
-const md5 = require("md5");
 const http = require("http");
 const url = require("url");
 const open = require("open");
 const destroyer = require("server-destroy");
 const fs = require("fs");
 const path = require("path");
+const streamify = require("streamify");
 
 const homedir = require('os').homedir();
 
@@ -16,6 +16,7 @@ if (!fs.existsSync(credentialsPath)) fs.mkdirSync(credentialsPath);
 
 class Client {
   constructor(options) {
+    this.stream = streamify();
     this.google = google;
     this.client = this;
     var defaultOptions = {
@@ -83,6 +84,11 @@ class Client {
     try {
       let tokens = fs.readFileSync(this.options.token_path, "utf8");
       this.oAuth2Client.setCredentials(JSON.parse(tokens));
+
+      if(this.oAuth2Client.isTokenExpiring()) {
+        this.oAuth2Client.refreshAccessTokenAsync();
+      }
+
     } catch (err) {}
   }
 
@@ -172,6 +178,39 @@ class Client {
         destroyer(server);
       }
     });
+  }
+
+  emit(event, data = null) {
+    this.stream.emit(event, data);
+    switch (event) {
+      case 'error':
+        if(!this.options.cli) {
+          this.stream.emit(event, data);
+        }
+        break;
+      default:
+        this.stream.emit("*", event, data);
+        break;
+    }
+  }
+
+  write(data, options = {update: false}) {
+    if (this.options.stdout) {
+      if(options.update) {
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0, null);
+      } // else data = "\n" + data;
+      process.stdout.write(data);
+    }
+  }
+  writeStdErr(data, options = {update: false}) {
+    if (this.options.stdout) {
+      if(options.update) {
+        readline.clearLine();
+        readline.cursorTo(0);
+      }
+      process.stderr.write(data);
+    }
   }
 }
 

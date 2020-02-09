@@ -29,11 +29,11 @@ gdrive token:get # generator new token
 ``` js
 // upload file
 
-const { Upload, Download } = require("node-gdrive");
+const Drive = require("node-gdrive");
 
 let filePath = 'foo.txt';
 
-var upload = new Upload(filePath, {share: true});
+var upload = Drive.upload(filePath, {share: true});
 upload.on('*', (event, data) => {
   console.log(event, data);
 });
@@ -41,8 +41,7 @@ upload.on('*', (event, data) => {
 // Download file
 let fileId = "1eoAgH8xgBkkUDXkTdyPSHSbaJViv33oX";
 
-var download = new Download();
-download
+Drive
   .download(fileId, {
     resumable: true, // Resume download session
     force: false, // Override file if exists
