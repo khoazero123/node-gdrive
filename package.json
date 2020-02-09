@@ -2,13 +2,13 @@
   "name": "node-gdrive",
   "description": "Google driver for node",
   "homepage": "https://github.com/khoazero123/node-gdrive",
-  "version": "0.0.15",
-  "main": "./lib/index.js",
+  "version": "0.0.16",
+  "main": "./src/index.js",
   "bin": {
     "gdrive": "./bin/gdrive"
   },
   "files": [
-    "lib",
+    "src",
     "bin"
   ],
   "author": {
