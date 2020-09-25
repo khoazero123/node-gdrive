@@ -27,10 +27,10 @@ class Client {
       client: {
         client_id:
           process.env.GDRIVE_CLIENT_ID ||
-          "137307177884-vg7uu3vuaptihnfadkch6so8p5k2ovr7.apps.googleusercontent.com",
-        project_id: process.env.GDRIVE_PROJECT_ID || "gdrive-170107",
+          "538656488600-8qnotirbp0ccjjvhuo0mmsqbft01rqgl.apps.googleusercontent.com",
+        project_id: process.env.GDRIVE_PROJECT_ID || "onecloud-media",
         client_secret:
-          process.env.GDRIVE_CLIENT_SECRET || "RluDC9VpCL6aXIRzVHgBUbTy",
+          process.env.GDRIVE_CLIENT_SECRET || "3CKTtOrbTD1Q8H4A2hqvmmRp",
         redirect_uris: process.env.GDRIVE_REDIRECT_URIS || [
           "urn:ietf:wg:oauth:2.0:oob",
         ],
@@ -44,7 +44,6 @@ class Client {
       server_port: 8885
     };
     this.options = Object.assign({}, defaultOptions, options);
-    // console.log(this.options);process.exit(1);
     if (!fs.existsSync(credentialsPath)) {
       fs.mkdirSync(credentialsPath);
     }
