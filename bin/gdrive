@@ -73,7 +73,7 @@ const argv = yargs
         cli: true,
         stdout: true,
         progress: argv.progress === false ? false : true,
-        share: argv.share.length ? argv.share : argv.share===false ? false : true,
+        share: argv.share?.length ? argv.share : argv.share===false ? false : true,
         delete: argv.delete === true ? true : false
       });
       if (!options.file) {

@@ -3,7 +3,6 @@ const { resolve } = require("path");
 const fs = require("fs");
 const readline = require("readline");
 const readdir = promisify(fs.readdir);
-const rename = promisify(fs.rename);
 const stat = promisify(fs.stat);
 
 /**

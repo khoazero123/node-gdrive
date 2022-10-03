@@ -202,6 +202,7 @@ class Client {
       process.stdout.write(data);
     }
   }
+
   writeStdErr(data, options = {update: false}) {
     if (this.options.stdout) {
       if(options.update) {
@@ -213,5 +214,4 @@ class Client {
   }
 }
 
-// module.exports = new Client();
 module.exports = Client;

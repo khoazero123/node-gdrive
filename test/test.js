@@ -1,10 +1,6 @@
 const assert = require("assert");
-const chai = require("chai");
-const should = require("chai").should();
 const expect = require("chai").expect;
 const { Upload, Download } = require("../");
-
-
 
 describe("Upload", function() {
   describe("#upload-event", function() {
