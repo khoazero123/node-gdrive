@@ -290,4 +290,4 @@ class Drive extends Client {
   }
 }
 
-module.exports = new Drive();
+module.exports = Drive;

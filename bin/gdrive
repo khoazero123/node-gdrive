@@ -2,7 +2,6 @@
 
 const yargs = require("yargs");
 const chalk = require("chalk");
-const error = chalk.bold.red;
 const warning = chalk.keyword("orange");
 const info = chalk.keyword("gray");
 const Client = require("../src/lib/Client");
@@ -79,8 +78,8 @@ const argv = yargs
       if (!options.file) {
         yargs.showHelp();
       }
-
-      Drive.upload(options.file, options);
+      const drive = new Drive();
+      drive.upload(options.file, options);
     }
   )
   .command(
@@ -110,7 +109,8 @@ const argv = yargs
     function(argv) {
       var fileId = argv.fileId;
       // console.log(argv);process.exit(1);
-      Drive
+      const drive = new Drive();
+      drive
         .download(fileId, {
           resumable: argv.resumable,
           force: argv.force,
@@ -168,7 +168,8 @@ const argv = yargs
     function(argv) {
       var fileId = argv.fileId;
       try {
-        Drive
+        const drive = new Drive();
+        drive
           .share(fileId, argv.email)
           .then((result) => {
             console.log('Share done');
@@ -217,7 +218,8 @@ const argv = yargs
     
   },
   function(argv) {
-    Drive.list(argv.folderId).then(files => {
+    const drive = new Drive();
+    drive.list(argv.folderId).then(files => {
       console.log(files);
     })
     try {

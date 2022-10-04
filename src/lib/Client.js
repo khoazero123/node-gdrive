@@ -128,18 +128,11 @@ class Client {
           input: process.stdin,
           output: process.stdout
         });
-        rl.question("Enter the code from that page here: ", code => {
+        rl.question("Enter the code from that page here: ", async (code) => {
           rl.close();
-          this.oAuth2Client.getToken(code, (err, token) => {
-            if (err) return console.error("Error retrieving access token", err);
-            this.oAuth2Client.setCredentials(token);
-            // Store the token to disk for later program executions
-            fs.writeFile(tokenPath, JSON.stringify(token), err => {
-              if (err) return console.error(err);
-              console.log("Token stored to", tokenPath);
-            });
-            resolve(this.oAuth2Client);
-          });
+          const tokens = await this.reedemCode(code);
+          fs.writeFileSync(tokenPath, JSON.stringify(tokens));
+          console.log("Token stored to", tokenPath);
         });
       } else {
         process.stdout.write(`Opening web browser to auth...\n`);
@@ -151,6 +144,7 @@ class Client {
                 const { code } = url.parse(req.url, true).query;
                 res.end("Authentication successful! Please return to the console.");
                 server.destroy();
+                // const tokens = await this.reedemCode(code);
                 const { tokens } = await this.oAuth2Client.getToken(code);
                 this.oAuth2Client.credentials = tokens;
                 fs.writeFile(tokenPath, JSON.stringify(tokens), err => {
@@ -177,6 +171,26 @@ class Client {
         destroyer(server);
       }
     });
+  }
+
+  async reedemCode(code) {
+    try {
+      const { tokens } = await this.oAuth2Client.getToken(code);
+      this.oAuth2Client.setCredentials(tokens);
+      return tokens;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  generateAuthUrl() {
+    let scopes = this.options.scopes;
+    const authorizeUrl = this.oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes.join(' '),
+    });
+
+    return authorizeUrl;
   }
 
   emit(event, data = null) {
