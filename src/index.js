@@ -1,4 +1,4 @@
 
-const Drive = require("./lib/Drive");
+const Client = require("./lib/Client");
 
-module.exports = Drive
+module.exports = Client

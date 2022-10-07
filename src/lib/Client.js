@@ -8,6 +8,7 @@ const destroyer = require("server-destroy");
 const fs = require("fs");
 const path = require("path");
 const streamify = require("streamify");
+const Drive = require('./Drive');
 
 const homedir = require('os').homedir();
 
@@ -77,18 +78,27 @@ class Client {
     this.oAuth2Client = new google.auth.OAuth2(
       keys.client_id,
       keys.client_secret,
-      "urn:ietf:wg:oauth:2.0:oob"
+      keys.redirect_uris[0]
     );
+
+    this.drive = this.google.drive({
+      version: 'v3',
+      auth: this.oAuth2Client
+    });
 
     try {
       let tokens = fs.readFileSync(this.options.token_path, "utf8");
       this.oAuth2Client.setCredentials(JSON.parse(tokens));
 
-      if(this.oAuth2Client.isTokenExpiring()) {
-        this.oAuth2Client.refreshAccessTokenAsync();
-      }
+      // if(this.oAuth2Client.isTokenExpiring()) {
+      //   this.oAuth2Client.refreshAccessTokenAsync();
+      // }
 
     } catch (err) {}
+  }
+
+  getDrive() {
+    return new Drive(this.drive);
   }
 
   // Open an http server to accept the oauth callback. In this
@@ -188,6 +198,7 @@ class Client {
     const authorizeUrl = this.oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: scopes.join(' '),
+      prompt: 'consent',
     });
 
     return authorizeUrl;

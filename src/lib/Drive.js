@@ -5,20 +5,14 @@ const {throttle} = require("lodash");
 const pMap = require('p-map');
 const filesize = require('filesize');
 const uuid = require('uuid');
-const Client = require('./Client');
 const util = require('./util');
 
-class Drive extends Client {
-  constructor(options) {
-    super(options);
-
-    this.drive = this.google.drive({
-      version: 'v3',
-      auth: this.client.oAuth2Client
-    });
+class Drive {
+  constructor(drive) {
+    this.drive = drive;
   }
 
-  async list(folderId, options = {}) {
+  async list(folderId) {
     const self = this;
     const query = {
       pageSize: 10,
@@ -34,6 +28,11 @@ class Drive extends Client {
         resolve(files);
       });
     });
+  }
+
+  async getFile(fileId) {
+    const {data} = await this.drive.files.get({ fileId, fields: '*' });
+    return data;
   }
 
   async upload(distPath, options = {}) {
